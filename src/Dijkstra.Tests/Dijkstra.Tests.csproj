@@ -17,4 +17,9 @@
         <PackageReference Include="xunit" Version="2.6.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Dijkstra\Dijkstra.csproj" />
+    </ItemGroup>
+
 </Project>
