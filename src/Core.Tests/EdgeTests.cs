@@ -1,5 +1,4 @@
 ﻿using Core.Exceptions;
-using FluentAssertions;
 
 namespace Core.Tests;
 
