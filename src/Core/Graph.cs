@@ -14,7 +14,7 @@ public sealed class Graph<T> where T : IEdge
     /// </summary>
     public const int MaxEdges = 100;
 
-    private readonly HashSet<T> _edges = new HashSet<T>();
+    private readonly HashSet<T> _edges = new();
 
     private GraphName _name;
 
@@ -38,7 +38,7 @@ public sealed class Graph<T> where T : IEdge
     /// </summary>
     /// <returns>Returns snapshot from graph</returns>
     public SnapshotGraph<T> ToSnapshot() =>
-        new SnapshotGraph<T>(Name, _edges.ToArray());
+        new(Name, _edges.ToArray());
 
     /// <summary>
     /// Method replicates graph from snapshot
