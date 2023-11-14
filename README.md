@@ -12,6 +12,7 @@ Web application for finding the shortest path in weighted graph using Dijkstra's
 * Git - project is stored on [GitHub](https://github.com/JiriHotovec/GraphsWeb)
 * .NET 8
 * WebAssembly
+* WebApi
 * File storage
 * Linq to Objects
 * Immutable Value Types
