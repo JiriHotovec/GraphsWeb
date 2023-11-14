@@ -1,0 +1,45 @@
+﻿@page "/graphs"
+@inject HttpClient Http
+
+<PageTitle>Graphs</PageTitle>
+
+<h1>Graphs</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (_graphs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var graph in _graphs)
+            {
+                <tr>
+                    <td>@graph.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Graph[]? _graphs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _graphs = await Http.GetFromJsonAsync<Graph[]>("Graph");
+    }
+
+    public class Graph
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+}

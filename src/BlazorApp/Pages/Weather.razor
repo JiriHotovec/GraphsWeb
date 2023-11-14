@@ -41,7 +41,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Http.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "http://localhost:5056/");
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
     }
 
