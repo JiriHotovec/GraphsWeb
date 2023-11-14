@@ -5,12 +5,12 @@ Web application for finding the shortest path in weighted graph using Dijkstra's
 ## Prerequisites
 
 * Modern browser which supports WebAssembly [see](https://developer.mozilla.org/en-US/docs/WebAssembly#browser_compatibility)
-* .NET 7 Runtime - [*(download)*](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-7.0.13-windows-hosting-bundle-installer)
+* .NET 8 Runtime - [*(download)*](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-8.0.0-windows-hosting-bundle-installer)
 
 ## Used Technologies
 
 * Git - project is stored on [GitHub](https://github.com/JiriHotovec/GraphsWeb)
-* .NET 7
+* .NET 8
 * WebAssembly
 * File storage
 * Linq to Objects
