@@ -23,10 +23,7 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
     /// <exception cref="ArgumentNullException">Parameter cannot be null</exception>
     public Task UpsertAsync(SnapshotGraph<T> snapshot, CancellationToken cancellationToken = default)
     {
-        if (snapshot is null)
-        {
-            throw new ArgumentNullException(nameof(snapshot));
-        }
+        ArgumentNullException.ThrowIfNull(snapshot);
 
         var filePath = GetFilePath(new GraphName(snapshot.Name));
 
@@ -42,10 +39,7 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
     /// <exception cref="ArgumentNullException">Parameter cannot be null</exception>
     public Task<SnapshotGraph<T>> GetAsync(GraphName name, CancellationToken cancellationToken = default)
     {
-        if (name is null)
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
+        ArgumentNullException.ThrowIfNull(name);
 
         var filePath = GetFilePath(name);
 
@@ -72,10 +66,7 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
     /// <exception cref="ModelException">Custom exception for model validation</exception>
     public Task DeleteAsync(GraphName name, CancellationToken cancellationToken = default)
     {
-        if (name is null)
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
+        ArgumentNullException.ThrowIfNull(name);
 
         try
         {
@@ -96,22 +87,17 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Return value true if file already exists otherwise false</returns>
     /// <exception cref="ArgumentNullException">Parameter cannot be null</exception>
-    public Task<bool> ExistsAsync(GraphName name, CancellationToken cancellationToken = default) =>
-        name != null
-            ? Task.FromResult(File.Exists(GetFilePath(name)))
-            : throw new ArgumentNullException(nameof(name));
+    public Task<bool> ExistsAsync(GraphName name, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        return Task.FromResult(File.Exists(GetFilePath(name)));
+    }
 
     private Task UpsertAsync(SnapshotGraph<T> snapshot, string filePath, CancellationToken cancellationToken = default)
     {
-        if (snapshot is null)
-        {
-            throw new ArgumentNullException(nameof(snapshot));
-        }
-
-        if (string.IsNullOrWhiteSpace(filePath))
-        {
-            throw new ArgumentNullException(nameof(filePath));
-        }
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
         try
         {
@@ -129,10 +115,7 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
 
     private Task<SnapshotGraph<T>> GetAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
-        {
-            throw new ArgumentNullException(nameof(filePath));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
         string fileContent;
         try
@@ -168,10 +151,7 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
 
     private string GetFileNameFromGraphName(GraphName name)
     {
-        if (name is null)
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
+        ArgumentNullException.ThrowIfNull(name);
 
         if (Path.GetInvalidFileNameChars().Any(invalidChar => name.Value.Contains(invalidChar)))
         {
@@ -181,16 +161,20 @@ public sealed class GraphJsonFileStorage<T> : IGraphStorage<T> where T : IEdge
         return $"{name.Value.Replace(GraphNameSeparator, FileNameSeparator)}.json";
     }
 
-    private GraphName GetGraphNameFromFileName(string name) =>
-        !string.IsNullOrWhiteSpace(name)
-            ? new GraphName(Path.GetFileNameWithoutExtension(name).Replace(FileNameSeparator, GraphNameSeparator))
-            : throw new ArgumentNullException(nameof(name));
+    private GraphName GetGraphNameFromFileName(string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        return new GraphName(Path.GetFileNameWithoutExtension(name).Replace(FileNameSeparator, GraphNameSeparator));
+    }
 
     private string GetDirectoryPath() =>
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FolderName);
 
-    private string GetFilePath(GraphName name) =>
-        name != null
-            ? Path.Combine(GetDirectoryPath(), GetFileNameFromGraphName(name))
-            : throw new ArgumentNullException(nameof(name));
+    private string GetFilePath(GraphName name)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        return Path.Combine(GetDirectoryPath(), GetFileNameFromGraphName(name));
+    }
 }

@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Core;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Models;
+using WebApi.Services.Abstractions;
 
 namespace WebApi.Controllers
 {
@@ -8,47 +11,34 @@ namespace WebApi.Controllers
     [Produces("application/json")]
     public class GraphController : ControllerBase
     {
-        public record Graph(string Name);
-
-        private static readonly Graph[] Graphs =
-        {
-            new("Freezing"),
-            new("Bracing"),
-            new("Chilly"),
-            new("Cool"),
-            new("Mild"),
-            new("Warm"),
-            new("Balmy"),
-            new("Hot"),
-            new("Sweltering"),
-            new("Scorching")
-        };
-
         private readonly ILogger<GraphController> _logger;
+        private readonly IGraphService _graphService;
 
-        public GraphController(ILogger<GraphController> logger)
+        public GraphController(ILogger<GraphController> logger, IGraphService graphService)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         }
 
         [HttpGet]
         [Route("")]
-        [ProducesResponseType<IEnumerable<Graph>>(StatusCodes.Status200OK)]
-        public IActionResult GetGraphs()
+        [ProducesResponseType<IEnumerable<GraphDto>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetGraphs(CancellationToken cancellationToken = default)
         {
-            return Ok(Graphs);
+            var graphs = await _graphService.GetGraphs(cancellationToken);
+
+            return Ok(graphs);
         }
 
         [HttpGet, HttpHead]
         [Route("{name}")]
-        [ProducesResponseType<Graph>(StatusCodes.Status200OK)]
+        [ProducesResponseType<GraphDetailDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetGraphDetail([FromRoute, Required] string name)
+        public async Task<IActionResult> GetGraphDetail([FromRoute, Required] string name, CancellationToken cancellationToken = default)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            var graph = await _graphService.GetGraph(new GraphName(name), cancellationToken);
 
-            var graph = Graphs.FirstOrDefault(i => i.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             return graph is not null
                 ? Ok(graph)
                 : NotFound();
@@ -56,38 +46,47 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("")]
-        [ProducesResponseType<Graph>(StatusCodes.Status201Created)]
+        [ProducesResponseType<GraphDetailDto>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult CreateGraph([FromBody, Required] Graph graph)
+        public async Task<IActionResult> CreateGraph([FromBody, Required] GraphDetailDto graph, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(graph);
 
-            return CreatedAtAction(nameof(GetGraphDetail), new { name = graph.Name }, graph);
+            var result = await _graphService.UpsertGraph(new GraphName(graph.Name), graph, cancellationToken);
+
+            return CreatedAtAction(nameof(GetGraphDetail), new { name = result.Name }, result);
         }
 
         [HttpPut]
         [Route("{name}")]
-        [ProducesResponseType<Graph>(StatusCodes.Status200OK)]
+        [ProducesResponseType<GraphDetailDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateGraph([FromRoute, Required] string name, [FromBody, Required] Graph graph)
+        public async Task<IActionResult> UpdateGraph(
+            [FromRoute, Required] string name,
+            [FromBody, Required] GraphDetailDto graph,
+            CancellationToken cancellationToken = default)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(graph);
 
-            var result = Graphs.FirstOrDefault(i => i.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            return result is not null
-                ? Ok(result)
-                : NotFound();
+            var graphName = new GraphName(name);
+            if (!await _graphService.ExistsGraph(graphName, cancellationToken))
+            {
+                return NotFound();
+            }
+
+            var result = await _graphService.UpsertGraph(graphName, graph, cancellationToken);
+
+            return Ok(result);
         }
 
         [HttpDelete]
         [Route("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult DeleteGraph([FromRoute, Required] string name)
+        public async Task<IActionResult> DeleteGraph([FromRoute, Required] string name, CancellationToken cancellationToken = default)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            await _graphService.DeleteGraph(new GraphName(name), cancellationToken);
 
             return Ok();
         }
