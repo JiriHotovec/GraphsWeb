@@ -1,3 +1,5 @@
-﻿namespace WebApi.Models;
+﻿using Core;
 
-public sealed record GraphDetailDto(string Name);
+namespace WebApi.Models;
+
+public sealed record GraphDetailDto(string Name, IEnumerable<WeightedEdge> Edges);

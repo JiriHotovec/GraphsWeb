@@ -9,7 +9,7 @@ public interface IGraphService
 
     Task<GraphDetailDto?> GetGraph(GraphName name, CancellationToken cancellationToken = default);
 
-    Task<GraphDetailDto> UpsertGraph(GraphName name, GraphDetailDto graph, CancellationToken cancellationToken = default);
+    Task<GraphDetailDto> UpsertGraph(GraphDetailDto graph, CancellationToken cancellationToken = default);
 
     Task DeleteGraph(GraphName name, CancellationToken cancellationToken = default);
 

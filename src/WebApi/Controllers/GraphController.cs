@@ -52,7 +52,7 @@ namespace WebApi.Controllers
         {
             ArgumentNullException.ThrowIfNull(graph);
 
-            var result = await _graphService.UpsertGraph(new GraphName(graph.Name), graph, cancellationToken);
+            var result = await _graphService.UpsertGraph(graph, cancellationToken);
 
             return CreatedAtAction(nameof(GetGraphDetail), new { name = result.Name }, result);
         }
@@ -64,7 +64,7 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateGraph(
             [FromRoute, Required] string name,
-            [FromBody, Required] GraphDetailDto graph,
+            [FromBody, Required] GraphDetailUpdateDto graph,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(graph);
@@ -75,7 +75,7 @@ namespace WebApi.Controllers
                 return NotFound();
             }
 
-            var result = await _graphService.UpsertGraph(graphName, graph, cancellationToken);
+            var result = await _graphService.UpsertGraph(new GraphDetailDto(name, graph.Edges), cancellationToken);
 
             return Ok(result);
         }

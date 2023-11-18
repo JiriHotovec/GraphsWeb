@@ -21,7 +21,7 @@ public static class GraphExtensions
 
     public static GraphDetailDto ToDto(this Graph<WeightedEdge> graph)
     {
-        var dto = new GraphDetailDto(graph.Name);
+        var dto = new GraphDetailDto(graph.Name, graph.GetEdges());
 
         return dto;
     }
@@ -29,6 +29,13 @@ public static class GraphExtensions
     public static Graph<WeightedEdge> ToEntity(this GraphDetailDto dto)
     {
         var entity = new Graph<WeightedEdge>(new GraphName(dto.Name));
+        foreach (var edge in dto.Edges)
+        {
+            entity.UpsertEdge(new WeightedEdge(
+                new Vertex(edge.Source.Name),
+                new Vertex(edge.Destination.Name),
+                edge.Weight));
+        }
 
         return entity;
     }

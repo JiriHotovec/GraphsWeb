@@ -34,7 +34,7 @@ public sealed class GraphService : IGraphService
         return Graph<WeightedEdge>.FromSnapshot(graphSnapshot).ToDto();
     }
 
-    public async Task<GraphDetailDto> UpsertGraph(GraphName name, GraphDetailDto graph, CancellationToken cancellationToken = default)
+    public async Task<GraphDetailDto> UpsertGraph(GraphDetailDto graph, CancellationToken cancellationToken = default)
     {
         await _storage.UpsertAsync(graph.ToEntity().ToSnapshot(), cancellationToken);
 
