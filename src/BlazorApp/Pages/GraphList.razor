@@ -22,7 +22,8 @@ else
     <table class="table">
         <thead>
         <tr>
-            <th>Name</th>
+            <th scope="col">Name</th>
+            <th scope="col">Action</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +35,9 @@ else
                             @graph.Name
                         </NavLink>
                     </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="() => OnRemoveGraph(graph.Name)"><span class="bi bi-trash3-fill-app"></span> Remove</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -44,6 +48,23 @@ else
     private Graph[]? _graphs;
 
     protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task OnRemoveGraph(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        await Http.SendAsync(new HttpRequestMessage(HttpMethod.Delete, $"api/Graph/{name}"));
+
+        await Refresh();
+    }
+
+    private async Task Refresh()
     {
         _graphs = await Http.GetFromJsonAsync<Graph[]>("api/Graph");
     }
