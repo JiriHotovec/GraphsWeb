@@ -1,0 +1,113 @@
+﻿@page "/dijkstra"
+@inject HttpClient Http
+
+<PageTitle>Dijkstra's Algorithm</PageTitle>
+
+<h1>Dijkstra's Algorithm</h1>
+
+<p>An algorithm used for finding shortest path in graph.</p>
+
+@if (_graphs is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="form-group row">
+        <div class="col-auto">
+            <select class="form-control" id="graphDataList" @bind="_selectedGraph">
+                <option selected disabled value="">Select graph</option>
+                @foreach (var graph in _graphs.OrderBy(o => o.Name))
+                {
+                    <option value="@graph.Name">@graph.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <input class="form-control" id="graph-vertex-srv-name" placeholder="Vertex source" @bind="_source">
+        </div>
+        <div class="col-auto">
+            <input class="form-control" id="graph-vertex-dst-name" placeholder="Vertex destination" @bind="_destination">
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" @onclick="OnFind">Find shortest path</button>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Path</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var edge in _path)
+        {
+            <tr>
+                <td>
+                    (@edge.Source.Name, @edge.Destination.Name) @edge.Weight.Value
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Graph[]? _graphs;
+    private string _selectedGraph = string.Empty;
+    private string _source = string.Empty;
+    private string _destination = string.Empty;
+    private IList<Edge> _path = new List<Edge>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _graphs = await Http.GetFromJsonAsync<Graph[]>("api/Graph");
+    }
+
+    private async Task OnFind()
+    {
+        _path.Clear();
+
+        if (string.IsNullOrWhiteSpace(_selectedGraph) ||
+            string.IsNullOrWhiteSpace(_source) ||
+            string.IsNullOrWhiteSpace(_destination))
+        {
+            return;
+        }
+
+        var path = await Http.GetFromJsonAsync<Edge[]>($"api/Dijkstra/{_selectedGraph}/{_source}/{_destination}");
+        if (path is null)
+        {
+            return;
+        }
+
+        foreach (var edge in path)
+        {
+            _path.Add(edge);
+        }
+    }
+
+    public class Graph
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class Edge
+    {
+        public Vertex Source { get; set; } = new();
+
+        public Vertex Destination { get; set; } = new();
+
+        public Weight Weight { get; set; } = new();
+    }
+
+    public class Vertex
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class Weight
+    {
+        public int Value { get; set; } = 1;
+    }
+}
