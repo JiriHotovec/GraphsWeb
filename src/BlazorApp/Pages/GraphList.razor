@@ -1,4 +1,6 @@
 ﻿@page "/graph"
+@using System.Web
+
 @inject HttpClient Http
 
 <PageTitle>Graph</PageTitle>
@@ -13,17 +15,25 @@
 }
 else
 {
+    <NavLink class="nav-link" href=@($"GraphDetail/{HttpUtility.UrlEncode("New graph")}")>
+        <span class="bi bi-plus-square-fill-app" aria-hidden="true"></span> Create new graph
+    </NavLink>
+
     <table class="table">
         <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+        </tr>
         </thead>
         <tbody>
             @foreach (var graph in _graphs)
             {
                 <tr>
-                    <td>@graph.Name</td>
+                    <td>
+                        <NavLink class="nav-link" href=@($"GraphDetail/{HttpUtility.UrlEncode(graph.Name)}")>
+                            @graph.Name
+                        </NavLink>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -35,7 +45,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _graphs = await Http.GetFromJsonAsync<Graph[]>("Graph");
+        _graphs = await Http.GetFromJsonAsync<Graph[]>("api/Graph");
     }
 
     public class Graph

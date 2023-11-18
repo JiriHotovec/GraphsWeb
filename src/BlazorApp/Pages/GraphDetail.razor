@@ -1,0 +1,155 @@
+﻿@page "/GraphDetail/{Name}"
+@using System.Text.Json
+
+@inject HttpClient Http
+
+<PageTitle>Graph Detail</PageTitle>
+
+<h1>Graph Detail</h1>
+
+<form>
+    <div class="form-group">
+        <label for="graph-name">Name</label>
+        <input class="form-control" id="graph-name" placeholder="Enter graph name" @bind="_graph.Name">
+    </div>
+    <br/>
+    <div class="form-group row">
+        <div class="col-auto">
+            <input class="form-control" id="graph-vertex-src-name" placeholder="Vertex source" @bind="_edge.Source.Name">
+        </div>
+        <div class="col-auto">
+            <input class="form-control" id="graph-vertex-dst-name" placeholder="Vertex destination" @bind="_edge.Destination.Name">
+        </div>
+        <div class="col-auto">
+            <input class="form-control" id="graph-edge-weight" placeholder="Vertex destination" @bind="_edge.Weight.Value">
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-secondary" @onclick="OnAddEdge">Add edge</button>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var edge in _graph.Edges)
+            {
+                <tr>
+                    <td>
+                        (@edge.Source.Name, @edge.Destination.Name) @edge.Weight.Value
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="() => OnRemoveEdge(edge.Id)"><span class="bi bi-trash3-fill-app"></span> Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="OnSave">Save</button>
+</form>
+
+@code {
+    [Parameter]
+    public string? Name { get; set; }
+
+    private string _graphNameUrl => $"api/Graph/{Name}";
+    private string _graphUrl => "api/Graph";
+
+    private Graph _graph = new();
+    private Edge _edge = new();
+
+    private JsonSerializerOptions _options = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!(await Http.SendAsync(new HttpRequestMessage(HttpMethod.Head, _graphNameUrl))).IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        // _graph = await Http.GetFromJsonAsync<Graph>(_graphNameUrl);
+        var response = await Http.GetAsync(_graphNameUrl);
+        var content = await response.Content.ReadAsStringAsync();
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(content))
+        {
+            _graph = JsonSerializer.Deserialize<Graph>(content, _options)!;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        //the param will be set now
+        var test = Name;
+    }
+
+    private async Task OnSave()
+    {
+        await Http.PostAsJsonAsync(_graphUrl, _graph);
+    }
+
+    private void OnAddEdge()
+    {
+        if (string.IsNullOrWhiteSpace(_edge.Source.Name) ||
+            string.IsNullOrWhiteSpace(_edge.Destination.Name) ||
+            _edge.Weight.Value < 1)
+        {
+            return;
+        }
+
+        var edge = new Edge()
+        {
+            Source = new Vertex() { Name = _edge.Source.Name },
+            Destination = new Vertex() { Name = _edge.Destination.Name },
+            Weight = new Weight() { Value = _edge.Weight.Value }
+        };
+
+        _graph.Edges.Add(edge);
+
+        _edge = new Edge();
+    }
+
+    private void OnRemoveEdge(Guid id)
+    {
+        var edge = _graph.Edges.FirstOrDefault(i => i.Id == id);
+        if (edge is null)
+        {
+            return;
+        }
+
+        _graph.Edges.Remove(edge);
+    }
+
+    public class Graph
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public IList<Edge> Edges { get; set; } = new List<Edge>();
+    }
+
+    public class Edge
+    {
+        public Guid Id = Guid.NewGuid();
+
+        public Vertex Source { get; set; } = new();
+
+        public Vertex Destination { get; set; } = new();
+
+        public Weight Weight { get; set; } = new();
+    }
+
+    public class Vertex
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class Weight
+    {
+        public int Value { get; set; } = 1;
+    }
+}
