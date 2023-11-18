@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Dijkstra\Dijkstra.csproj" />
   </ItemGroup>
 
 </Project>

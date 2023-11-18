@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddGraph();
+builder.Services.AddDijkstra();
 
 var app = builder.Build();
 

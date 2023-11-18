@@ -18,10 +18,10 @@ public class DijkstraProvider : IDijkstraProvider
     /// <param name="edges">Collection of edges which is used to find way through</param>
     /// <exception cref="ArgumentNullException">Parameter cannot be null</exception>
     /// <exception cref="ModelException">Custom exception for model validation</exception>
-    public DijkstraProvider(ICollection<IWeightedEdge> edges)
+    public DijkstraProvider(IEnumerable<IWeightedEdge> edges)
     {
-        _edges = edges ?? throw new ArgumentNullException(nameof(edges));
-        if (!_edges.Any())
+        _edges = edges?.ToList() ?? throw new ArgumentNullException(nameof(edges));
+        if (_edges.Count == 0)
         {
             throw new ModelException("No edges");
         }
@@ -40,15 +40,8 @@ public class DijkstraProvider : IDijkstraProvider
         Vertex destination,
         CancellationToken cancellationToken = default)
     {
-        if (source is null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
-
-        if (destination is null)
-        {
-            throw new ArgumentNullException(nameof(destination));
-        }
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
 
         var retPaths = new List<ParentPath>();
         var allPaths = GetPaths(source).ToList();
