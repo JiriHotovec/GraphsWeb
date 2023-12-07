@@ -1,6 +1,6 @@
 # GraphsWeb
 
-Web application for finding the shortest path in weighted graph using Dijkstra's algorithm.
+Web application for finding the shortest path in weighted graph using Dijkstra's algorithm, [see](https://github.com/JiriHotovec/GraphsWeb) repository on GitHub.
 
 ## Prerequisites
 
