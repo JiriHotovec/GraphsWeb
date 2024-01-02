@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Core;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Middlewares;
 using WebApi.Models;
 using WebApi.Services.Abstractions;
 
@@ -33,7 +34,7 @@ namespace WebApi.Controllers
         [HttpGet, HttpHead]
         [Route("{name}")]
         [ProducesResponseType<GraphDetailDto>(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ExceptionResponse>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetGraphDetail([FromRoute, Required] string name, CancellationToken cancellationToken = default)
         {
@@ -47,7 +48,7 @@ namespace WebApi.Controllers
         [HttpPost]
         [Route("")]
         [ProducesResponseType<GraphDetailDto>(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ExceptionResponse>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateGraph([FromBody, Required] GraphDetailDto graph, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(graph);
@@ -60,7 +61,7 @@ namespace WebApi.Controllers
         [HttpPut]
         [Route("{name}")]
         [ProducesResponseType<GraphDetailDto>(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ExceptionResponse>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateGraph(
             [FromRoute, Required] string name,
@@ -83,7 +84,7 @@ namespace WebApi.Controllers
         [HttpDelete]
         [Route("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ExceptionResponse>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteGraph([FromRoute, Required] string name, CancellationToken cancellationToken = default)
         {
             await _graphService.DeleteGraph(new GraphName(name), cancellationToken);

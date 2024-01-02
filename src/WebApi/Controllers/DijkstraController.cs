@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Core;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Middlewares;
 using WebApi.Services.Abstractions;
 
 namespace WebApi.Controllers
@@ -22,7 +23,7 @@ namespace WebApi.Controllers
         [HttpGet]
         [Route("{graphName}/{sourceName}/{destinationName}")]
         [ProducesResponseType<IEnumerable<WeightedEdge>>(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<ExceptionResponse>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetShortestPath(
             [FromRoute, Required] string graphName,
             [FromRoute, Required] string sourceName,
